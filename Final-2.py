@@ -28,9 +28,36 @@ then you would return:
 
 (You can assume that the days mentioned are all in the same week.)
 """
-
+import itertools
 
 def logic_puzzle():
     "Return a list of the names of the people, in the order they arrive."
-    ## your code here; you are free to define additional functions if needed
-    
+    names = {1:'Hamming', 2:'Wilkes', 3:'Minsky', 4:'Knuth', 5:'Simon'}
+    keys  = [1,2,3,4,5]
+    orderings = list(itertools.permutations(keys))
+    indexes = next((Hamming, Wilkes, Minsky, Knuth, Simon)
+                for (Monday, Tuesday, Wednesday, Thursday, Friday) in orderings
+                for (laptop, droid, iphone, tablet, nothing) in orderings
+                if laptop is Wednesday #1
+                if tablet is not Friday #8
+                for (Wilkes, Hamming, Minsky, Knuth, Simon) in orderings
+                if after(Knuth, Simon) #6
+                for (programmer, writer, designer, manager, hobo) in orderings
+                if programmer is not Wilkes #2
+                if writer is not Minsky #4
+                if manager is not Knuth and manager is not tablet #5
+                if designer is not Thursday #7
+                if designer is not droid #9
+                if after(Knuth, manager) #10
+                if (laptop is Monday and Wilkes is writer) or (laptop is writer and Wilkes is Monday)#11
+                if (iphone is Tuesday or tablet is Tuesday) #12
+                if (programmer is Wilkes and droid is Hamming) or (programmer is Hamming and droid is Wilkes) #3    
+                    )
+    n = [names[i] for i in indexes]
+    return n
+
+def after(a, b):
+    return b<a
+
+print logic_puzzle()
+
