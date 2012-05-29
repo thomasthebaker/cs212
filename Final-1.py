@@ -2,21 +2,21 @@
 UNIT 1: Bowling:
 
 You will write the function bowling(balls), which returns an integer indicating
-the score of a ten-pin bowling game.  balls is a list of integers indicating
-how many pins are knocked down with each ball.  For example, a perfect game of
+the score of a ten-pin bowling game. balls is a list of integers indicating
+how many pins are knocked down with each ball. For example, a perfect game of
 bowling would be described with:
 
-    >>> bowling([10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10])
-    300
+>>> bowling([10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10])
+300
 
 The rules of bowling are as follows:
 
 (1) A game consists of 10 frames. In each frame you roll one or two balls,
-except for the tenth frame, where you roll one, two, or three.  Your total
+except for the tenth frame, where you roll one, two, or three. Your total
 score is the sum of your scores for the ten frames.
 (2) If you knock down fewer than ten pins with your two balls in the frame,
-you score the total knocked down.  For example, bowling([8, 1, 7, ...]) means
-that you knocked down a total of 9 pins in the first frame.  You score 9 point
+you score the total knocked down. For example, bowling([8, 1, 7, ...]) means
+that you knocked down a total of 9 pins in the first frame. You score 9 point
 for the frame, and you used up two balls in the frame. The second frame will
 start with the 7.
 (3) If you knock down all ten pins on your second ball it is called a 'spare'
@@ -39,53 +39,45 @@ def bowling(balls):
     frames = split_frames(balls)
     print frames
     score = 0
-    last = 'open'
     for f in frames:
-        if last=='spare': 
-            score+=f[0]
-        elif last=='strike':
-            score
-        thisscore = 0
-        for b in f:
-            thisscore+=b
-        if thisscore==10:
-            bonus=True
-        score+=thisscore
-        print 'thisscore: '+str(thisscore)
+        score += f[1]+f[2]
+
     print score
     return score
 
+
+#return (frame, score, bonus)
 def split_frames(balls):
     frames = []
+    maxI = len(balls)
     i=0
-    c=0
-    iter = balls.__iter__()
-    #for i in range(len(balls)-2):
-    while i<9:
-        b = iter.next()
-        if b==10:
-            frames.append((b))
-            c+=1
+    while i < maxI:
+        b = balls[i]
+        if (len(frames)==9):
+            finalFrame = [balls[i+j] for j in range(maxI-i)]
+            frames.append((finalFrame, sum(finalFrame), 0))
+            i=maxI;
+        elif b==10:
+            frames.append(([b], 10, balls[i+1]+balls[i+2]))
+            i+=1
         else:
-            frames.append((b,iter.next()))
-            c+=2
-        i+=1
-    if len(balls)-c ==3:
-        frames.append((iter.next(),iter.next(), iter.next()))
-    else: 
-        frames.append((iter.next(),iter.next()))
+            b1=balls[i+1]
+            bonus = 0
+            if b+b1==10: bonus=balls[i+2]
+            frames.append(([b, b1], b+b1, bonus))
+            i+=2
     return frames
     
 def test_bowling():
     assert len(split_frames([10,10,10,10,10,10,10,10,10,10,10,10]))==10
     assert len(split_frames([9,1,10,10,10,10,10,10,10,10,10,10]))==10
-    assert   0 == bowling([0] * 20)
-    assert  20 == bowling([1] * 20)
-    assert  80 == bowling([4] * 20)
+    assert 0 == bowling([0] * 20)
+    assert 20 == bowling([1] * 20)
+    assert 80 == bowling([4] * 20)
     assert 190 == bowling([9,1] * 10 + [9])
     assert 300 == bowling([10] * 12)
     assert 200 == bowling([10, 5,5] * 5 + [10])
-    assert  11 == bowling([0,0] * 9 + [10,1,0])
-    assert  12 == bowling([0,0] * 8 + [10, 1,0])
+    assert 11 == bowling([0,0] * 9 + [10,1,0])
+    assert 12 == bowling([0,0] * 8 + [10, 1,0])
 
-test_bowling()  
+test_bowling() 
