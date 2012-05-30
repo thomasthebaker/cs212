@@ -1,4 +1,3 @@
-
 """
 UNIT 3: Functions and APIs: Polynomials
 
