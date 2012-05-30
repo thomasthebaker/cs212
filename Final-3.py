@@ -20,6 +20,7 @@ where the nth element of the input tuple is the coefficient of the nth power of 
 the list, but this is the reversed order from how we usually write polynomials.)
 poly returns a function, so we can now apply p1 to some value of x:
 
+
 p1(0) == 10
 
 Our representation of a polynomial is as a callable function, but in addition,
@@ -76,6 +77,7 @@ def term(coef, pow):
 
 def test_poly():
     global p1, p2, p3, p4, p5, p9 # global to ease debugging in an interactive session
+    mul(poly((1,1)), poly((1,1)))
     mul(poly((1,2)), poly((2,1)))
     p1 = poly((10, 20, 30))
     assert p1(0) == 10
@@ -137,21 +139,22 @@ def add(p1, p2):
 
 def sub(p1, p2):
     "Return a new polynomial which is the difference of polynomials p1 and p2."
-
+    maxP1 = len(p1.coefs)
+    maxP2 = len(p2.coefs)
+    newCoefs = [ a-b for (a, b) in [(p1.coefs[i] if i<maxP1 else 0 , p2.coefs[i] if i<maxP2 else 0) for i in range(max(maxP1, maxP2))] ]
+    print 'sub('+ p1.__name__ +', '+p2.__name__+') --->' +str(newCoefs)
+    return poly(tuple(newCoefs))
 
 def mul(p1, p2):
     "Return a new polynomial which is the product of polynomials p1 and p2."
     nMax = (len(p1.coefs)-1) + (len(p2.coefs))
-    x1=[0,1,2,3]
-    N=4
-    print [ [a,b] for (a,b) in [(x1[m], x1[(N-1)-m]) for m in range(N)]]
     def nthTerm(c1, c2, n):
         if n==0: return [c1[0]*c2[0]]
         c1l = len(c1)
         c2l=len(c2)
-        return [ a*b for (a,b) in [(c1[m], c2[(n-1)-m]) for m in range(n)]] #[(c1[m] if c1l>m else 1, c2[n-m] if c2l >(n-m) else 1) for m in range(n)]]
+        return [ a*b for (a,b) in [(c1[m] if c1l>m else 0, c2[n-m] if c2l >(n-m) else 0) for m in range(n+1)]]
     newCoefs = tuple([sum(nthTerm(p1.coefs, p2.coefs, n)) for n in range(nMax)])
-    print 'mul('+ p1.__name__ +', '+p2.__name__+') --->' +str(newCoefs)
+    #print 'mul('+ p1.__name__ +', '+p2.__name__+') --->' +str(newCoefs)
     return poly(newCoefs)
 
 
@@ -178,11 +181,18 @@ to the function integral (withh default C=0).
     
 def deriv(p):
     "Return the derivative of a function p (with respect to its argument)."
-
+    coefs = p.coefs
+    newCoefs=[ coefs[i]*i for i in range(1, len(coefs), 1) ]
+    print 'deriv: '+p.__name__ +' --> '+str(newCoefs)
+    return poly(tuple(newCoefs))
 
 def integral(p, C=0):
     "Return the integral of a function p (with respect to its argument)."
-
+    coefs = p.coefs
+    newCoefs=[ coefs[i]/(i+1) for i in range(len(coefs)) ]
+    newCoefs.insert(0, C)
+    print 'integral: '+p.__name__ +' --> '+str(newCoefs)
+    return poly(tuple(newCoefs))
 
 """
 Now for an extra credit challenge: arrange to describe polynomials with an
