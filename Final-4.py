@@ -80,7 +80,7 @@ pairs, where each pair is a tuple and the locations are a tuple.  Here is the
 initial state for the problem above in this format:
 """
 
-puzzle1 = (
+puzzle1a = (
  ('@', (31,)),
  ('*', (26, 27)), 
  ('G', (9, 10)),
@@ -116,7 +116,7 @@ def solve_parking_puzzle(start, N=N):
 
 def locs(start, n, incr=1):
     "Return a tuple of n locations, starting at start and incrementing by incr."
-
+    return tuple([l for l in range(start, start + n*incr, incr)])
 
 def grid(cars, N=N):
     """Return a tuple of (object, locations) pairs -- the format expected for
@@ -126,7 +126,12 @@ def grid(cars, N=N):
     pair, like ('@', (31,)), to indicate this. The variable 'cars'  is a
     tuple of pairs like ('*', (26, 27)). The return result is a big tuple
     of the 'cars' pairs along with the walls and goal pairs."""
-
+    goal = N*(N/2)-1
+    walls = [('|', tuple([i for i in range(N-1)]+
+                         [i for i in range(1,N*N-1) if ( (i%N==0 or i%N==(N-1)) and i!=goal)]+
+                         [i for i in range(N*(N-1)+1, N*N)]))]
+    goal = [('@',(goal,))]
+    return tuple(goal+list(cars)+walls)
 
 def show(state, N=N):
     "Print a representation of a state as an NxN grid."
@@ -192,4 +197,13 @@ def shortest_path_search(start, successors, is_goal):
 def path_actions(path):
     "Return a list of actions in this path."
     return path[1::2]
+
+def test():
+    assert locs(1,3,1) == (1,2,3)
+    assert puzzle1==puzzle1a
+    path = solve_parking_puzzle(puzzle1, N=8)
+    assert path_actions(path) == [('A', -3), ('B', 16), ('Y', 24), ('*', 4)]
+    return "test passes"
+
+print test()
 
