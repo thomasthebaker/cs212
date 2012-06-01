@@ -110,6 +110,58 @@ def solve_parking_puzzle(start, N=N):
     alternating items; an action is a pair (object, distance_moved),
     such as ('B', 16) to move 'B' two squares down on the N=8 grid."""
     
+    def parkingSuccessors(state):
+        "Return a dict of state action pairs"
+        result = dict()
+        #get every item that can move and move it recursively
+        fixedItems = set(['|','@'])
+        for item in state:
+            if item[0] not in fixedItems:
+                result.update(itemActions(item, state)) 
+        return result
+        
+    goalLoc = N *(N/2)-1
+    
+    def isGoal(state):
+        for item in state:
+            if item[0] is '*': 
+                return item[1][len(item[1])-1]==goalLoc
+        return False  
+    result = shortest_path_search(start, parkingSuccessors, isGoal)
+    return result
+
+def isGoal(state):
+    for item in state:
+        if item[0] is '*': return item[1][len(item[1])-1]==goalLoc
+    return False                 
+        
+def itemActions(item, state):
+    actions = dict()
+    loc = state.index(item)
+    stateList = list(state)
+    n = 1
+    forwardAction = move(item, state, n)
+    while forwardAction is not None:
+        actions[tuple(stateList[0:loc]+[forwardAction[0]]+stateList[loc+1:])]=forwardAction[1]
+        n+=1
+        forwardAction = move(item, state, n)
+    n=-1
+    backwardAction = move(item, state, n)
+    while backwardAction is not None:
+        actions[tuple(stateList[0:loc]+[backwardAction[0]]+stateList[loc+1:])]=backwardAction[1]
+        n-=1
+        backwardAction = move(item, state, n)
+    return actions
+                    
+def move(item, state, n):
+    name, positions =item
+    step = positions[1]-positions[0]
+    checkLoc = 0 if n<0 else (len(positions)-1)
+    nextPos = tuple([p+n*step for p in positions])
+    if (nextPos[checkLoc] in set([i for s in state if s[0] is not '@' for i in list(s[1])])): return
+    return ((name,nextPos), (name, n*step))
+
+    
 # But it would also be nice to have a simpler format to describe puzzles,
 # and a way to visualize states.
 # You will do that by defining the following two functions:
@@ -170,6 +222,10 @@ puzzle3 = grid((
     ('O', locs(45, 2, N)),
     ('Y', locs(49, 3))))
 
+puzzlegoal = grid((
+                   ('*', locs(30,2)),
+                   ('A', locs(45,2,N))))
+
 
 # Here are the shortest_path_search and path_actions functions from the unit.
 # You may use these if you want, but you don't have to.
@@ -187,6 +243,7 @@ def shortest_path_search(start, successors, is_goal):
         for (state, action) in successors(s).items():
             if state not in explored:
                 explored.add(state)
+                #show(state)
                 path2 = path + [action, state]
                 if is_goal(state):
                     return path2
@@ -198,11 +255,20 @@ def path_actions(path):
     "Return a list of actions in this path."
     return path[1::2]
 
+def print_result(path):
+    print 'Result: -------------------------------'
+    for i in range(0,len(path)-1,2):
+        show(path[i])
+        print path[i+1]
+        print '//////////////////////////'
+
 def test():
     assert locs(1,3,1) == (1,2,3)
     assert puzzle1==puzzle1a
     path = solve_parking_puzzle(puzzle1, N=8)
     assert path_actions(path) == [('A', -3), ('B', 16), ('Y', 24), ('*', 4)]
+    print_result(solve_parking_puzzle(puzzle2, N=8))
+    print_result(solve_parking_puzzle(puzzle3, N=8))
     return "test passes"
 
 print test()
