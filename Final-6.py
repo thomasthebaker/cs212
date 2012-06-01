@@ -51,8 +51,35 @@ input words. But you could implement a method that is efficient with a
 larger list of words.
 """
 
+import itertools
+
 def natalie(words):
     "Find the best Portmanteau word formed from any two of the list of words."
+    if words is None: return 
+    if len(words)<=1: return
+    options = [p for p in [join(w1,w2,n) 
+                           for (w1,w2) in itertools.permutations(words, 2) 
+                           for n in range(1,max(len(w1),len(w2)))] 
+               if (p!=None and p[0]!=w1 and p[0]!=w2)] 
+    scores = [score(s) for s in options]
+    #print scores
+    if len(scores)>1:
+        winner = max(scores, key=lambda x: x[3])
+    else:
+        winner = scores[0] if len(scores)==1 else None
+    print winner
+    return winner[0] if winner else None
+        
+    
+def score(portman):
+    port,score = portman
+    l = len(port)
+    ideal = (l/4,l/2,l/4)
+    return (port,score,ideal, l - sum(abs(score[n]-ideal[n]) for n in range(3)))
+
+    
+def join(w1, w2, n):
+    return (w1+w2[n:],(len(w1)-n, n, len(w2)-n)) if (w1[-n:] == w2[:n]) else None
 
 def test_natalie():
     "Some test cases for natalie"

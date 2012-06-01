@@ -257,9 +257,11 @@ def path_actions(path):
 
 def print_result(path):
     print 'Result: -------------------------------'
-    for i in range(0,len(path)-1,2):
-        show(path[i])
-        print path[i+1]
+    show(path[0])
+    for i in range(1,len(path),2):
+        print path[i]
+        show(path[i+1])
+        #if (i+1)<len(path): print path[i+1]
         print '//////////////////////////'
 
 def test():
